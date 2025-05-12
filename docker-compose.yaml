@@ -1,0 +1,24 @@
+services:
+  api:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  redis:
+    image: redis:6-alpine
+    container_name: redis_cache
+    ports:
+      - "${REDIS_HOST_PORT}:${REDIS_HOST_PORT}"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

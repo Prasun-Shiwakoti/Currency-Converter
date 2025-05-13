@@ -9,14 +9,14 @@ A small, maintainable FastAPI microservice that:
 
 * Converts currency amounts via a third-party API.
 * Caches exchange rates in Redis to minimize external calls.
-* Provides structured logging: **DEBUG** logs to file and **WARNING+** logs to console. 
+* Provides structured logging: **DEBUG** logs to file and **WARNING+** logs to console.
 
 ---
 
 ## Features
 
-* **Stateless Processes**: Runs under Uvicorn, binding to a configurable port. 
-* **Config via Env Vars**: Uses Pydantic’s `BaseSettings` for type-safe settings loaded from a `.env`. 
+* **Stateless Processes**: Runs under Uvicorn, binding to a configurable port.
+* **Config via Env Vars**: Uses Pydantic’s `BaseSettings` for type-safe settings loaded from a `.env`.
 * **Redis Caching**: Stores rates with TTL to reduce latency and API usage.
 * **Structured Logging**: Dual handlers—file (`DEBUG+`) and console (`WARNING+`).
 * **Automated Tests**: pytest suite with HTTPX TestClient `requests`.
@@ -56,9 +56,9 @@ Create a `.env` in the project root:
 
 ```dotenv
 APP_NAME=Currency Converter API
-EXCHANGE_RATE_API_KEY=28b17f9aedef73e0d9f7a6242102377a
+EXCHANGE_RATE_API_KEY=EXHANGERATE_API_KEY
 EXCHANGE_RATE_API_URL=https://api.exchangerate.host/convert
-REDIS_HOST_URL=localhost
+REDIS_HOST_URL=redis_cache
 REDIS_HOST_PORT=6379
 ```
 
@@ -93,7 +93,7 @@ Response:
 
 ## Caching with Redis
 
-* Upon first request for a pair (e.g., `USD_EUR`), the rate is fetched and cached with `redis_client.setex(...)` for 1 hour. 
+* Upon first request for a pair (e.g., `USD_EUR`), the rate is fetched and cached with `redis_client.setex(...)` for 1 hour.
 * Subsequent requests within TTL hit Redis, bypassing external API.
 * Connection failures fall back gracefully, logging warnings.
 
@@ -107,6 +107,5 @@ Install test requirements and run pytest:
 pytest
 ```
 
-* FastAPI’s TestClient is based on HTTPX. 
+* FastAPI’s TestClient is based on HTTPX.
 ---
-

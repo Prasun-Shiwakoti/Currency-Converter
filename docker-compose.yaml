@@ -6,6 +6,8 @@ services:
       - "${APP_PORT}:${APP_PORT}"
     env_file:
       - .env
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       - redis
     networks:
@@ -13,7 +15,7 @@ services:
 
   redis:
     image: redis:6-alpine
-    container_name: redis_cache
+    container_name: ${REDIS_HOST_URL}
     ports:
       - "${REDIS_HOST_PORT}:${REDIS_HOST_PORT}"
     networks:

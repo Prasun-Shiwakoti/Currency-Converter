@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Request
 import requests
 import logging
 import redis
@@ -6,7 +6,13 @@ import redis
 from app.config import get_settings
 from app.logging_config import setup_logging
 
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
+
+
 app = FastAPI()
+templates = Jinja2Templates(directory="app/templates")
+
 
 setup_logging()
 logger = logging.getLogger("currency_converter")
@@ -15,16 +21,28 @@ settings = get_settings()
 
 # Setting up redis to cache exchange rates
 try:
-    redis_client = redis.Redis(host=settings.redis_host_url, port=settings.redis_host_port, db=0)
+    redis_client = redis.Redis(
+        host=settings.redis_host_url, port=settings.redis_host_port, db=0
+    )
     redis_client.ping()
     logger.info("Connected to Redis successfully")
 except redis.ConnectionError as e:
     logger.error(f"Redis connection failed: {e}")
     redis_client = None
 
+
+@app.get("/", response_class=HTMLResponse)
+async def homepage(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
 @app.get("/convert")
-def convert_currency(from_currency: str, to_currency: str, amount: float, settings: dict = Depends(get_settings)):
-    
+def convert_currency(
+    from_currency: str,
+    to_currency: str,
+    amount: float,
+    settings: dict = Depends(get_settings),
+):
     # Logging request details
     logger.debug(f"Received request: {amount} {from_currency} to {to_currency}")
 
@@ -50,23 +68,29 @@ def convert_currency(from_currency: str, to_currency: str, amount: float, settin
             "from": from_currency.upper(),
             "to": to_currency.upper(),
             "amount": amount,
-            'access_key': settings.exchange_rate_api_key
+            "access_key": settings.exchange_rate_api_key,
         }
 
         try:
-            logger.info(f"Fetching exchange rate from external API for {from_currency} to {to_currency}")
-            response = requests.get(settings.exchange_rate_api_url , params=params)
+            logger.info(
+                f"Fetching exchange rate from external API for {from_currency} to {to_currency}"
+            )
+            response = requests.get(settings.exchange_rate_api_url, params=params)
             response.raise_for_status()
         except requests.RequestException as e:
             logger.error(f"External API error: {e}")
             raise HTTPException(status_code=500, detail="External API error") from e
-        
+
         data = response.json()
 
         if not data.get("success", False):
-            logger.warning(f"Invalid currency code or amount: {from_currency}, {to_currency}, {amount}")
-            raise HTTPException(status_code=400, detail="Invalid currency code or amount")
-    
+            logger.warning(
+                f"Invalid currency code or amount: {from_currency}, {to_currency}, {amount}"
+            )
+            raise HTTPException(
+                status_code=400, detail="Invalid currency code or amount"
+            )
+
         result = data.get("result")
         logger.info(f"Conversion result: {result}")
 
@@ -87,5 +111,5 @@ def convert_currency(from_currency: str, to_currency: str, amount: float, settin
         "to": to_currency.upper(),
         "amount": amount,
         "exchange_rate": exchange_rate,
-        "converted_amount": converted_amount
+        "converted_amount": converted_amount,
     }

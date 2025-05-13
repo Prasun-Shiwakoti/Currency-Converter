@@ -3,10 +3,11 @@ import logging
 import logging.config
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_DIR = os.path.join(os.getcwd(), "logs")
 
 LOGGING_CONFIG = {
     "version": 1,
-    "disable_existing_loggers": False,  
+    "disable_existing_loggers": False,
     "formatters": {
         "default": {
             "format": "%(asctime)s | %(levelname)s | %(name)s | %(message)s",
@@ -20,14 +21,14 @@ LOGGING_CONFIG = {
             "formatter": "default",
             "stream": "ext://sys.stdout",
         },
-        "file":{
+        "file": {
             "class": "logging.handlers.RotatingFileHandler",
             "level": "DEBUG",
-            "filename": os.path.join(BASE_DIR, "logs", "currency_converter.log"),
+            "filename": os.path.join(LOG_DIR, "currency_converter.log"),
             "formatter": "default",
-            "maxBytes": 1024*1024*5,
+            "maxBytes": 1024 * 1024 * 5,
             "backupCount": 2,
-        }
+        },
     },
     "root": {
         "handlers": ["console", "file"],
@@ -54,6 +55,7 @@ LOGGING_CONFIG = {
         },
     },
 }
+
 
 def setup_logging():
     logging.config.dictConfig(LOGGING_CONFIG)

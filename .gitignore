@@ -1,5 +1,11 @@
+# Ignore environment files
 .env
-.pytest_cache
-__pycache__
 
+# Ignore pytest cache folder
+.pytest_cache/
+
+# Ignore Python bytecode folders
+__pycache__/
+
+# Ignore log files
 *.log

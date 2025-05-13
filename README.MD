@@ -71,10 +71,15 @@ REDIS_HOST_PORT=6379
 
 ```bash
 # Run with Uvicorn
-uvicorn app.main:app --reload --host 0.0.0.0 --port $PORT
+uvicorn app.main:app --reload --host 0.0.0.0 --port $APP_PORT
 
 # Convert example
-curl "http://localhost:8000/convert?from_currency=USD&to_currency=EUR&amount=100"
+curl "http://localhost:$APP_PORT/convert?from_currency=USD&to_currency=EUR&amount=100"
+
+OR
+# Open this URL to use the interactive form:
+http://localhost:$APP_PORT/
+
 ```
 
 Response:
